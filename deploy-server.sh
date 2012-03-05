@@ -130,7 +130,8 @@ function check_deps {
   check_for "git"
 }
 
-user="sebastian"
+signpost_user="sebastian"
+user="ubuntu"
 signpost_number=2
 domain="signpo.st"
 external_ip="192.168.56.101"
@@ -145,7 +146,7 @@ function persist_config {
   fi
   touch config.yaml
   echo "config:" >> config.yaml
-  echo "  user: $user" >> config.yaml
+  echo "  user: $signpost_user" >> config.yaml
   echo "  signpost_number: $signpost_number" >> config.yaml
   echo "  domain: $domain" >> config.yaml
   echo "  external_ip: $external_ip" >> config.yaml
@@ -197,8 +198,11 @@ function get_info {
   echo "Server login information"
   reset_colour
 
-  request_with_default "username" "Username used to log onto the server" $user 
+  request_with_default "username" "Your username on the machine you are installing the signpost software" $user 
   user=$fun_return
+
+  request_with_default "signpost user" "The username of your signpost domain user." $signpost_user 
+  signpost_user=$fun_return
 
   request_with_default "signpost number" "The number of your signpost domain. Example: for domain 'd2.signpo.st', the number is 2" $signpost_number 
   signpost_number=$fun_return
