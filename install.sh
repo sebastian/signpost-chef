@@ -14,4 +14,14 @@ if ! test -f "$chef_binary"; then
     sudo gem1.9.1 install --no-rdoc --no-ri chef --version 0.10.0
 fi &&
 
+# Copy our config to a place where we can get at it
+cp config.yaml /tmp/config.yaml
+
+# Run Chef :) mmm... smells good!
 /usr/bin/env chef-solo -c solo.rb -j solo.json
+
+# Remove config file, because it contains the password, and stuff
+# rm /tmp/config.yaml
+
+# Remove chef repo
+# rm -rf ~/chef

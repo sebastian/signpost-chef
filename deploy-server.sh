@@ -90,23 +90,23 @@ function check_deps {
 user="sebastian"
 signpost_number=2
 domain="signpo.st"
-external_ip="107.20.47.111"
+external_ip="192.168.56.101"
 external_dns="ec2-107-20-47-111.compute-1.amazonaws.com"
-ip_slash_24="172.16.11."
-iodine_node_ip="172.16.11.1"
-signal_port=3456
 iodine_password="FOOBAAR"
 
 fun_return=
 
 function persist_config {
-  sed 's/USERNAME/$user/' config.ml
-  sed 's/SIGNPSOT_NUMBER/$signpost_number/' config.ml
-  sed 's/DOMAIN/$domain/' config.ml
-  sed 's/IP_SLASH_24/$ip_slash_24/' config.ml
-  sed 's/EXTERNAL_IP/$external_ip/' config.ml
-  sed 's/EXTERNAL_DNS/$external_dns/' config.ml
-  echo $iodine_password >> PASSWD
+  echo "Trying to persist config from dir `pwd`";
+  rm config.yaml
+  touch config.yaml
+  echo "config:" >> config.yaml
+  echo "  user: $user" >> config.yaml
+  echo "  signpost_number: $signpost_number" >> config.yaml
+  echo "  domain: $domain" >> config.yaml
+  echo "  external_ip: $external_ip" >> config.yaml
+  echo "  external_dns: $external_dns" >> config.yaml
+  echo "  iodine_password: $iodine_password" >> config.yaml
 }
 
 function request_with_default {
@@ -191,12 +191,17 @@ function start_real_work {
   echo "Setup starting now! This will take a while, please be patient."
   get_repo
   persist_config
+  ./deploy.sh $user $external_ip
   hurray
 }
 
 function get_repo {
+  if [[ -d /tmp/signpost-chef ]]; then
+    rm -rf /tmp/signpost-chef
+  fi
   git clone https://github.com/sebastian/signpost-chef /tmp/signpost-chef
   cd /tmp/signpost-chef
+  echo "Currently in `pwd`"
 }
 
 function check_for {

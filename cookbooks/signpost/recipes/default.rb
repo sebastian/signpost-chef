@@ -1,4 +1,6 @@
 # --- We need to install iodine ---
+gem "yaml"
+
 package "iodine" do
   action :install
 end
@@ -24,6 +26,21 @@ git signpost_dir do
   action :sync
 end
 
+# We want to replace the configuration file with one
+# that has configuration values as specified by the user
+conf = YAML::load(File.open('/tmp/config.yaml'))["config"]
+
+template "#{signpost_dir}/lib/config.ml" do
+  source "config.ml.erb"
+  variables(
+    :user => conf["user"],
+    :signpost_number => conf["signpost_number"],
+    :domain => conf["domain"],
+    :external_ip => conf["external_ip"],
+    :external_dns => conf["external_dns"],
+  )
+end
+
 execute "Compile and install Signpost" do
   command "make"
   cwd signpost_dir
@@ -34,13 +51,16 @@ end
 
 
 # --- Setup a signpost service ---
-# template "#{node["bluepill"]["conf_dir"]}/signpost_server.pill" do
-#   source "signpost_server.pill.erb"
-# end
+node["iodine_password"] = conf["iodine_password"]
+
+template "#{node["bluepill"]["conf_dir"]}/signpost_server.pill" do
+  source "signpost_server.pill.erb"
+end
+#
 # service "signpost_server" do
 #   provider bluepill_service
 #   action [:enable, :load, :start]
 # end
-bluepill_service "signpost_server" do
-  action [:enable, :load, :start]
-end
+# bluepill_service "signpost_server" do
+#   action [:enable, :load, :start]
+# end

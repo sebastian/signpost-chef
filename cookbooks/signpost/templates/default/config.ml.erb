@@ -14,12 +14,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *)
 
-let user = "USERNAME"
-let signpost_number = SIGNPOST_NUMBER
-let domain = "DOMAIN"
-let ip_slash_24 = "IP_SLASH_24"
-let external_ip = "EXTERNAL_IP"
-let external_dns = "EXTERNAL_DNS"
+let user = "<%= @username %>"
+let signpost_number = <%= @signpost_number %>
+let domain = "<%= @domain %>"
+let ip_slash_24 = "172.16.11."
+let external_ip = "<%= @external_ip %>"
+let external_dns = "<%= @external_dns %>"
 let dir = "/home/cr409/scratch/code/signpostd/"
 
 let iodine_node_ip = "172.16.11.1"
