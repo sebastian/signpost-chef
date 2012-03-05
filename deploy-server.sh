@@ -7,7 +7,7 @@ start_dir=`pwd`
 
 # Function to ask the user whether he/she would like to continue.
 # Valid responses are "Y", "y", "N" and "n".
-function ask_continue() {
+function ask_continue {
   while [[ $response != "n" && $response != "N" \
     && $response != "y" && $response != "Y" ]]
   do
