@@ -1,0 +1,30 @@
+Bluepill.application("signpost") do |app|
+  app.process("server.native") do |process|
+    process.start_command = "<%= node["signpost"]["installation_dir"] %>/server.native"
+    process.daemonize     = true
+    process.stdout        = process.stderr = "<%= node['signpost']['log_dir'] %>/server.log"
+    process.pid_file      = "<%= node['signpost']['pid_dir'] %>/server.pid"
+
+    process.start_grace_time   = 2.seconds
+    process.stop_grace_time    = 2.seconds
+    process.restart_grace_time = 10.seconds
+
+    process.checks :cpu_usage, :every => 10.seconds, :below => 5, :times => 3        
+    process.checks :mem_usage, :every => 10.seconds, :below => 20.megabytes, :times => [3,5]
+    process.checks :flapping,  :times => 2, :within => 30.seconds, :retry_in => 7.seconds
+  end
+
+  app.process("iodined") do |process|
+    process.start_command = "iodined -F <%= node["signpost"]["pid_dir"]%>/iodined.pid -P <%= node["signpost"]["iodine_password"]%> -c -b 5354 <%= node["signpost"]["ip_slash_24"] %>1/24 i.d<%= node["signpost"]["signpost_number"]%>.<%= node["signpost"]["domain"]%>"
+    process.stdout        = process.stderr = "<%= node['signpost']['log_dir'] %>/iodined.log"
+    process.pid_file      = "<%= node["signpost"]["pid_dir"]%>/iodined.pid"
+
+    process.start_grace_time   = 10.seconds
+    process.stop_grace_time    = 10.seconds
+    process.restart_grace_time = 30.seconds
+
+    process.checks :cpu_usage, :every => 10.seconds, :below => 5, :times => 3        
+    process.checks :mem_usage, :every => 10.seconds, :below => 50.megabytes, :times => [3,5]
+    process.checks :flapping,  :times => 2, :within => 30.seconds, :retry_in => 7.seconds
+  end
+end

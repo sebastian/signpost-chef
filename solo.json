@@ -1,3 +1,55 @@
 {
-    "run_list": [ "recipe[signpost]" ]
+  "signpost": {
+    // Signpost user configurations
+    "user": "sebastian",
+    "signpost_number": 2,
+    "domain": "signpo.st",
+    "external_ip": "107.20.47.111",
+    "external_dns": "ec2-107-20-47-111.compute-1.amazonaws.com",
+    "ip_slash_24": "172.16.11.",
+    "iodine_node_ip": "172.16.11.1",
+    "ns_server": "8.8.8.8",
+    "signal_port": 3456,
+    "iodine_password": "FOOBAAR",
+
+    // Signpost installation configurations
+    "pid_dir": "/usr/local/signpost/pid",
+    "log_dir": "/usr/local/signpost/log",
+    "installation_dir": "/usr/local/signpost/source"
+  },
+
+  "signpost-deps": {
+    "installation_dir": "/usr/local/signpost-dependencies"
+  },
+
+  "bluepill": {
+    "bin": "/usr/local/bin/bluepill"
+  },
+
+  "run_list": [
+    // OS dependencies
+    "recipe[ubuntu::default]",
+    "recipe[apt::default]",
+    "recipe[build-essential::default]",
+    "recipe[git::default]",
+    "recipe[ntp::default]",
+
+    // Get bluepill for process management
+    "recipe[bluepill::default]",
+
+    // Get VIM, and make it Sebastian friendly
+    // (maybe a good idea not to shit with this :))
+    "recipe[vim::default]",
+    "recipe[vim::seb_friendly]",
+
+    // Get OCaml dependencies
+    "recipe[ocaml::default]",
+    "recipe[ocaml::signpost]",
+
+    // Get the OpenVSwitch
+    "recipe[openvswitch::default]",
+
+    // Signpost packages
+    "recipe[signpost::default]"
+  ]
 }

@@ -1,0 +1,14 @@
+maintainer        "Signpost team"
+maintainer_email  "sebastian.probst.eide@gmail.com"
+license           "Apache 2.0"
+description       "Installs OpenVSwitch"
+version           "0.0.1"
+recipe            "openvswitch", "Installs Open V Switch"
+
+%w{ ubuntu debian arch}.each do |os|
+  supports os
+end
+
+%w{ ocaml }.each do |cb|
+  depends cb
+end
