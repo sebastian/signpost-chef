@@ -12,7 +12,7 @@ function main {
   print_hdr "Setting up signpost server"
   validate_user;
   validate_host;
-  generate_key;
+  clean_host_info;
   upload_and_execute;
 }
 
@@ -39,14 +39,14 @@ function validate_host {
   fi
 }
 
-function generate_key {
-  print_subhdr "Generating host key"
+function clean_host_info {
+  print_subhdr "Removing preexisting host info"
   ssh-keygen -R "${host#*@}" 2> /dev/null
 }
 
 function upload_and_execute {
   print_subhdr "Uploading recepies to the server and executing them"
-  tar -cf - . | ssh -o 'StrictHostKeyChecking no' "$user@$host" '
+  tar -cf - . | ssh -vv -o 'StrictHostKeyChecking no' "$user@$host" '
   sudo rm -rf ~/chef &&
   mkdir ~/chef &&
   cd ~/chef &&
