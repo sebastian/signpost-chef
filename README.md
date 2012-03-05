@@ -7,6 +7,6 @@ Use the following oneliner to setup a signpost server:
 Prereqs, i.e. you will need the following:
 
 - A clean ubuntu installation
-- Password less sudo
+- A user account with passwordless sudo
 - Some time
-- A domain name pointed to the machine
+- A domain name pointed at the machine
