@@ -1,6 +1,4 @@
 # --- We need to install iodine ---
-gem "yaml"
-
 package "iodine" do
   action :install
 end

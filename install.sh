@@ -15,7 +15,7 @@ if ! test -f "$chef_binary"; then
 fi &&
 
 # Copy our config to a place where we can get at it
-cp config.yaml /tmp/config.yaml
+cp ~/chef/config.yaml /tmp/config.yaml
 
 # Run Chef :) mmm... smells good!
 /usr/bin/env chef-solo -c solo.rb -j solo.json

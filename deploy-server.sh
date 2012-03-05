@@ -97,8 +97,9 @@ iodine_password="FOOBAAR"
 fun_return=
 
 function persist_config {
-  echo "Trying to persist config from dir `pwd`";
-  rm config.yaml
+  if [[ -e config.yaml ]]; then
+    rm config.yaml
+  fi
   touch config.yaml
   echo "config:" >> config.yaml
   echo "  user: $user" >> config.yaml
