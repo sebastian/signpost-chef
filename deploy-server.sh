@@ -194,6 +194,11 @@ function start_real_work {
   persist_config
   ./deploy.sh $user $external_ip
   hurray
+  echo "We are done!"
+  echo "You should now try adding some clients."
+  echo "You do that by: foo bar gazizzle. (GOOD LUCK)."
+  echo
+  echo
 }
 
 function get_repo {

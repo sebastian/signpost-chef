@@ -21,7 +21,7 @@ cp ~/chef/config.yaml /tmp/config.yaml
 /usr/bin/env chef-solo -c solo.rb -j solo.json
 
 # Remove config file, because it contains the password, and stuff
-# rm /tmp/config.yaml
+rm /tmp/config.yaml
 
 # Remove chef repo
-# rm -rf ~/chef
+rm -rf ~/chef
