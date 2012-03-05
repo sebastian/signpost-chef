@@ -3,7 +3,7 @@ source include/bash_header.sh
 
 # Usage: ./deploy.sh [host]
 
-set -ex
+set -e
 
 user="$1"
 host="$2"
@@ -41,7 +41,10 @@ function validate_host {
 
 function clean_host_info {
   print_subhdr "Removing preexisting host info"
-  ssh-keygen -R "${host#*@}" 2> /dev/null
+  hostname="${host#*@}"
+  echo "HOSTNAME: $hostname"
+  ssh-keygen -R $hostname 2> /dev/null
+  echo "cleaned host"
 }
 
 function upload_and_execute {
