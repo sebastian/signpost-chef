@@ -3,7 +3,7 @@ source include/bash_header.sh
 
 # Usage: ./deploy.sh [host]
 
-set -e
+set -ex
 
 user="$1"
 host="$2"
@@ -55,4 +55,3 @@ function upload_and_execute {
 }
 
 main;
-
