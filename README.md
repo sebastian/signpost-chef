@@ -2,7 +2,7 @@
 
 Use the following oneliner to setup a signpost server:
 
-    curl https://raw.github.com/sebastian/signpost-chef/master/deploy-server.sh > /tmp/sp-install.sh && bash /tmp/sp-install.sh; rm /tmp/sp-install.sh
+    curl -s https://raw.github.com/sebastian/signpost-chef/master/deploy-server.sh > /tmp/sp-install.sh && bash /tmp/sp-install.sh; rm /tmp/sp-install.sh
 
 Prereqs, i.e. you will need the following:
 
