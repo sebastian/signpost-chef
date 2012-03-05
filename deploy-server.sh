@@ -5,7 +5,25 @@ set -e
 # so we can make sure we end up there again as well!
 start_dir=`pwd`
 
-source include/bash_header.sh
+# Function to ask the user whether he/she would like to continue.
+# Valid responses are "Y", "y", "N" and "n".
+function ask_continue() {
+  while [[ $response != "n" && $response != "N" \
+    && $response != "y" && $response != "Y" ]]
+  do
+    echo -n  "Do you want to continue? [yN] "
+    read response
+    if [[ $response == "" ]]; then
+      break
+    fi
+  done
+  # if we have seen an "n", "N" or a blank response (defaults to N),
+  # we exit here
+  if [[ $response == "n" || $response == "N" || $response == "" ]]
+  then
+    exit 1
+  fi
+}
 
 function main {
   check_deps;
