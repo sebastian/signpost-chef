@@ -6,8 +6,6 @@
 if ! test -f "$chef_binary"; then
   export DEBIAN_FRONTEND=noninteractive &&
 
-  sudo apt-get update -qq > /dev/null &&
-
   # Upgrade headlessly (this is only safe-ish on vanilla systems)
   apt-get -o Dpkg::Options::="--force-confnew" \
       --force-yes -fuy dist-upgrade > /dev/null &&

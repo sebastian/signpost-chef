@@ -250,6 +250,8 @@ function start_real_work {
 
 function log_onto_host {
   ssh -T -i $private_key "$user@$external_ip" <<EOF
+  echo "--> Running apt-get update" &&
+  sudo apt-get update -qq > /dev/null &&
   echo "--> Getting git" &&
   sudo apt-get install -y git-core > /dev/null &&
   if [[ -d ~/chef ]]; then
