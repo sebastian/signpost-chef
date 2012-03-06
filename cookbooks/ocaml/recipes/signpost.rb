@@ -25,7 +25,7 @@ github_deps.each do |dep|
       not_if "test -d #{repo_dir}"
     end
 
-    execute "Compile and install OCaml-#{repo}" do
+    execute "Compile and install ocaml-#{repo}" do
       command "make build && sudo make reinstall && touch installed"
       cwd repo_dir
       # Don't install if it has already been installed
