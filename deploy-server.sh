@@ -126,7 +126,7 @@ function welcome {
 }
 
 user="ubuntu"
-private_key="~/.ssh/id_rsa"
+private_key="/Users/spe24/.ssh/id_rsa"
 external_ip="192.168.56.101"
 signpost_number=2
 signpost_user="sebastian"
@@ -201,7 +201,7 @@ function get_info {
   request_with_default "external ip" "The external IP of your server. It will be used when logging in remotely to your server to install the signpost software" $external_ip 
   external_ip=$fun_return
 
-  request_with_default "private key" "The privat key you are using when logging on to the server. It will not be transfered from this machine" $privat_key 
+  request_with_default "private key" "FULL PATH of private key." $private_key 
   private_key=$fun_return
 
   output_header "Information for setting up the signpost server"
@@ -249,7 +249,7 @@ function start_real_work {
 }
 
 function log_onto_host {
-  ssh -o 'StrictHostKeyChecking no' -i "$private_key" "$user@$external_ip" <<EOF
+  ssh -t -i $private_key "$user@$external_ip" <<EOF
   echo "--> Getting git" &&
   sudo apt-get install -y git-core > /dev/null &&
   if [[ -d ~/chef ]]; then
