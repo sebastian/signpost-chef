@@ -4,11 +4,11 @@
 
 # Are we on a vanilla system?
 if ! test -f "$chef_binary"; then
-  sudo apt-get update > /dev/null &&
-
   export DEBIAN_FRONTEND=noninteractive &&
+
+  sudo apt-get update -qq > /dev/null &&
+
   # Upgrade headlessly (this is only safe-ish on vanilla systems)
-  # aptitude update &&
   apt-get -o Dpkg::Options::="--force-confnew" \
       --force-yes -fuy dist-upgrade > /dev/null &&
   # Install Ruby and Chef
