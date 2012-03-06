@@ -126,7 +126,7 @@ function welcome {
 }
 
 user="ubuntu"
-privat_key="~/.ssh/id_rsa"
+private_key="~/.ssh/id_rsa"
 external_ip="192.168.56.101"
 signpost_number=2
 signpost_user="sebastian"
@@ -249,7 +249,7 @@ function start_real_work {
 }
 
 function log_onto_host {
-  ssh -o 'StrictHostKeyChecking no' -i "$privat_key" "$user@$external_ip" <<EOF
+  ssh -o 'StrictHostKeyChecking no' -i "$private_key" "$user@$external_ip" <<EOF
   echo "--> Getting git" &&
   sudo apt-get install -y git-core > /dev/null &&
   if [[ -d ~/chef ]]; then
