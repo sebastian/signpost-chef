@@ -26,7 +26,6 @@ function ask_continue {
 }
 
 function main {
-  check_deps;
   header;
   welcome;
   echo
@@ -126,33 +125,16 @@ function welcome {
   echo "* Your root domain name server should also point to the server."
 }
 
-function check_deps {
-  check_for "git"
-}
-
-signpost_user="sebastian"
 user="ubuntu"
-signpost_number=2
-domain="signpo.st"
+privat_key="~/.ssh/id_rsa"
 external_ip="192.168.56.101"
+signpost_number=2
+signpost_user="sebastian"
+domain="signpo.st"
 external_dns="ec2-107-20-47-111.compute-1.amazonaws.com"
 iodine_password="FOOBAAR"
 
 fun_return=
-
-function persist_config {
-  if [[ -e config.yaml ]]; then
-    rm config.yaml
-  fi
-  touch config.yaml
-  echo "config:" >> config.yaml
-  echo "  user: $signpost_user" >> config.yaml
-  echo "  signpost_number: $signpost_number" >> config.yaml
-  echo "  domain: $domain" >> config.yaml
-  echo "  external_ip: $external_ip" >> config.yaml
-  echo "  external_dns: $external_dns" >> config.yaml
-  echo "  iodine_password: $iodine_password" >> config.yaml
-}
 
 function request_with_default {
   what=$1
@@ -191,15 +173,38 @@ function request_with_default {
   done
 }
 
-function get_info {
-  echo "Please supply the following information to setup your signpost server."
-  echo 
+function output_header {
+  str=$1
+  len=${#str}
+  echo
+  echo
   blue_colour
-  echo "Server login information"
+  echo -n "$str"
+  echo ":"
+  for (( i=0; i <= ${len}; i++ ))
+  do
+    echo -n "-"
+  done
+  echo
   reset_colour
+}
+
+function get_info {
+  echo
+  echo "Please supply the following information to setup your signpost server."
+
+  output_header "Server login information"
 
   request_with_default "username" "Your username on the machine you are installing the signpost software" $user 
   user=$fun_return
+
+  request_with_default "external ip" "The external IP of your server. It will be used when logging in remotely to your server to install the signpost software" $external_ip 
+  external_ip=$fun_return
+
+  request_with_default "private key" "The privat key you are using when logging on to the server. It will not be transfered from this machine" $privat_key 
+  private_key=$fun_return
+
+  output_header "Information for setting up the signpost server"
 
   request_with_default "signpost user" "The username of your signpost domain user." $signpost_user 
   signpost_user=$fun_return
@@ -209,9 +214,6 @@ function get_info {
 
   request_with_default "domain" "Your domain name, without dN. Example: for domain 'd2.signpo.st', type in 'signpo.st'" $domain
   domain=$fun_return
-
-  request_with_default "external ip" "The external IP of your server" $external_ip 
-  external_ip=$fun_return
 
   request_with_default "external DNS" "An external CNAME for your domain" $external_dns 
   external_dns=$fun_return
@@ -237,35 +239,41 @@ function start_real_work {
   echo
   action
   echo "Setup starting now! This will take a while, please be patient."
-  get_repo
-  persist_config
-  ./deploy.sh $user $external_ip
-  hurray
-  echo "We are done!"
-  echo "You should now try adding some clients."
+  log_onto_host &&
+  hurray &&
+  echo "We are done!" &&
+  echo "You should now try adding some clients." &&
   echo "You do that by: foo bar gazizzle. (GOOD LUCK)."
   echo
   echo
 }
 
-function get_repo {
-  if [[ -d /tmp/signpost-chef ]]; then
-    rm -rf /tmp/signpost-chef
+function log_onto_host {
+  ssh -o 'StrictHostKeyChecking no' -i "$privat_key" "$user@$external_ip" <<EOF
+  echo "--> Getting git" &&
+  sudo apt-get install -y git-core > /dev/null &&
+  if [[ -d ~/chef ]]; then
+    sudo rm -rf ~/chef
   fi
-  git clone https://github.com/sebastian/signpost-chef /tmp/signpost-chef
-  cd /tmp/signpost-chef
-  echo "Currently in `pwd`"
-}
-
-function check_for {
-  src=$1;
-  whereis=`whereis $src`;
-  if [[ $whereis == "" ]]; then
-    error_colour;
-    echo "This script cannot continue without '$src'. Please install '$src' and try again."
-    reset_colour;
-    exit 1
+  echo "--> Cloning installation repository" &&
+  git clone https://github.com/sebastian/signpost-chef ~/chef > /dev/null &&
+  echo "--> Writing configuration file" &&
+  cd ~/chef &&
+  if [[ -f config.yaml ]]; then
+    sudo rm config.yaml
   fi
+  touch config.yaml &&
+  echo "config:" >> config.yaml &&
+  echo "  user: $signpost_user" >> config.yaml &&
+  echo "  signpost_number: $signpost_number" >> config.yaml &&
+  echo "  domain: $domain" >> config.yaml &&
+  echo "  external_ip: $external_ip" >> config.yaml &&
+  echo "  external_dns: $external_dns" >> config.yaml &&
+  echo "  iodine_password: $iodine_password" >> config.yaml &&
+  cp config.yaml ~/config.yaml &&
+  echo "--> Running installer" &&
+  sudo bash install.sh
+EOF
 }
 
 main;

@@ -42,9 +42,7 @@ function validate_host {
 function clean_host_info {
   print_subhdr "Removing preexisting host info"
   hostname="${host#*@}"
-  echo "HOSTNAME: $hostname"
   ssh-keygen -R $hostname 2> /dev/null
-  echo "cleaned host"
 }
 
 function upload_and_execute {
