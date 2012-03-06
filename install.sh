@@ -27,7 +27,9 @@ echo "--> Running chef" &&
 chef-solo -c solo.rb -j solo.json &&
 
 # Remove config file, because it contains the password, and stuff
+echo "--> Removing temporary config" &&
 rm /tmp/config.yaml &&
 
 # Remove chef repo
+echo "--> Removing installation repository" &&
 rm -rf ~/chef
