@@ -7,12 +7,12 @@ if ! test -f "$chef_binary"; then
   export DEBIAN_FRONTEND=noninteractive &&
 
   # Upgrade headlessly (this is only safe-ish on vanilla systems)
-  apt-get -o Dpkg::Options::="--force-confnew" \
+  apt-get -q -o Dpkg::Options::="--force-confnew" \
       --force-yes -fuy dist-upgrade > /dev/null &&
   # Install Ruby and Chef
 
   echo "--> Installing ruby" &&
-  sudo apt-get install -y ruby1.9.1 ruby1.9.1-dev make > /dev/null &&
+  sudo apt-get install -q -y ruby1.9.1 ruby1.9.1-dev make > /dev/null &&
   echo "--> Installing chef" &&
   sudo gem1.9.1 install --no-rdoc --no-ri chef --version 0.10.0 > /dev/null
 fi &&
