@@ -3,11 +3,13 @@
     // Signpost installation configurations
     "pid_dir": "/usr/local/signpost/pid",
     "log_dir": "/usr/local/signpost/log",
-    "installation_dir": "/usr/local/signpost/source"
+    "installation_dir": "/usr/local/signpost/source",
+
+    "server": true
   },
 
   "signpost-deps": {
-    "installation_dir": "/usr/local/signpost-dependencies"
+    "installation_dir": "/usr/local/signpost/dependencies"
   },
 
   "bluepill": {
@@ -38,6 +40,7 @@
     "recipe[openvswitch::default]",
 
     // Signpost packages
-    "recipe[signpost::default]"
+    "recipe[signpost::default]",
+    "recipe[signpost::monitoring]"
   ]
 }

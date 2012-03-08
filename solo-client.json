@@ -1,0 +1,34 @@
+{
+  "signpost": {
+    // Signpost installation configurations
+    "pid_dir": "/usr/local/signpost/pid",
+    "log_dir": "/usr/local/signpost/log",
+    "installation_dir": "/usr/local/signpost/source",
+
+    // Where the temporary files are stored
+    "signpost_tmp": "~/signpost_tmp",
+    "config_path": "~/signpost_tmp/chef/config.yaml"
+  },
+
+  "signpost-deps": {
+    "installation_dir": "/usr/local/signpost/dependencies"
+  },
+
+  "bluepill": {
+    "bin": "/usr/local/bin/bluepill"
+  },
+
+  "run_list": [
+    // Get bluepill for process management
+    "recipe[bluepill::default]",
+
+    // Get OCaml dependencies
+    "recipe[ocaml::signpost]",
+
+    // Get the OpenVSwitch
+    "recipe[openvswitch::default]",
+
+    // Signpost packages
+    "recipe[signpost::default]"
+  ]
+}

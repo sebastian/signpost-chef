@@ -26,7 +26,8 @@ end
 
 # We want to replace the configuration file with one
 # that has configuration values as specified by the user
-conf = YAML::load(File.open('/tmp/config.yaml'))["config"]
+conf_path = File.expand_path node["config_path"]
+conf = YAML::load(File.open(conf_path))["config"]
 
 template "#{signpost_dir}/lib/config.ml" do
   source "config.ml.erb"
@@ -45,15 +46,4 @@ execute "Compile and install Signpost" do
   # Don't install if it has already been installed
   creates "#{signpost_dir}/installed"
   action :run
-end
-
-# --- Setup a signpost service ---
-node["iodine_password"] = conf["iodine_password"]
-
-template "#{node["bluepill"]["conf_dir"]}/signpost_server.pill" do
-  source "signpost_server.pill.erb"
-end
-
-bluepill_service "signpost_server" do
-  action [:enable, :load, :start]
 end

@@ -22,7 +22,7 @@ cp ~/chef/config.yaml /tmp/config.yaml &&
 
 # Run Chef :) mmm... smells good!
 echo "--> Running chef" &&
-chef-solo -c solo.rb -j solo.json &&
+chef-solo -c solo.rb -j solo-server.json &&
 
 # Remove config file, because it contains the password, and stuff
 echo "--> Removing temporary config" &&

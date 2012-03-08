@@ -3,6 +3,8 @@
 require 'pp'
 require 'socket'
 require 'json/ext'
+require 'yaml'
+require 'fileutils'
 
 def ask_yes_no question
   # TODO: Remove auto
@@ -166,8 +168,7 @@ def connect_with_iodine paras
     exit 1
   end
   print "--> discovering settings"
-  config = get_config
-  # TODO: Do something with the settings!
+  get_config
 end
 
 def get_config
@@ -210,7 +211,7 @@ def get_config
     while retry_count > 0 do
       data, addr = socket.recvfrom_nonblock(100000)  #=> ["aaa", ["AF_INET", 33302, "localhost.localdomain", "127.0.0.1"]]
       puts ""
-      return JSON.parse(data)["response"]["result"]
+      return {"config" => JSON.parse(data)["response"]["result"]}
     end
   rescue Exception => e
     if retry_count > 0 then
@@ -227,12 +228,52 @@ def get_config
   exit 1
 end
 
-def autodiscover_settings paras
-  connect_with_iodine paras
+def check_for src
+  cmd = <<-eos
+  src="#{src}"
+  whereis=`whereis #{src}`;
+  if [[ $whereis == "" ]]; then
+    echo "$src"
+  fi
+  eos
+  unless `#{cmd}` == "" then
+    error_colour
+    puts "Missing dependency"
+    reset_colour
+    puts "Please install '#{src}'. Afterwars rerun this script."
+    exit 1
+  end
+end
+
+def check_deps
+  check_for "git"
+end
+
+def install_chef
+  puts "--> installing chef"
+  `sudo gem install --no-ri --no-rdoc --version 0.10.8 chef`
+end
+
+def ready_chef config
+  install_chef
+  puts "--> get chef recipes"
+  working_dir = File.expand_path("~/signpost_tmp")
+  if File.exists? working_dir then
+    FileUtils.rm_rf working_dir
+  end
+  FileUtils.mkdir_p working_dir
+  `git clone git://github.com/sebastian/signpost-chef.git ~/signpost_tmp/chef`
+  puts "--> persisting configuration"
+  File.open(File.expand_path("~/signpost_tmp/chef/config.yaml"), "w") do |f|
+    f.puts config.to_yaml
+  end
 end
 
 puts `clear`
+check_deps
 welcome
 paras = get_info
-autodiscover_settings paras
+config = connect_with_iodine paras
+ready_chef config
+
 # start_real_work;
