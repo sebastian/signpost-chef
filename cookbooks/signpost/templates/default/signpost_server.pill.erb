@@ -15,7 +15,7 @@ Bluepill.application("signpost") do |app|
   end
 
   app.process("iodined") do |process|
-    process.start_command = "iodined -F <%= @pid_dir %>/iodined.pid -P <%= @password %> -c -b 5354 172.16.11.1/24 i.d<%= @signpost_number %>.<%= @domain %>"
+    process.start_command = "sudo iodined -F <%= @pid_dir %>/iodined.pid -P <%= @password %> -c -b 5354 172.16.11.1/24 i.d<%= @signpost_number %>.<%= @domain %>"
     process.stdout        = process.stderr = "<%= @log_dir %>/iodined.log"
     process.pid_file      = "<%= @pid_dir %>/iodined.pid"
 
