@@ -1,5 +1,5 @@
 # --- Setup a signpost service ---
-conf_path = File.expand_path node["config_path"]
+conf_path = File.expand_path node["signpost"]["config_path"]
 conf = YAML::load(File.open(conf_path))["config"]
 node["iodine_password"] = conf["iodine_password"]
 

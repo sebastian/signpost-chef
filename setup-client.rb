@@ -1,14 +1,11 @@
 #! /usr/bin/env ruby
 
+require 'rubygems'
 require 'pp'
 require 'socket'
-require 'json/ext'
-require 'yaml'
 require 'fileutils'
 
 def ask_yes_no question
-  # TODO: Remove auto
-  return true
   response=nil
   while (response != "n" and response != "N" and
       response != "y" and response != "Y") do
@@ -58,11 +55,7 @@ def welcome
     puts ""
     puts "Ok, let's setup your signpost server first."
     puts ""
-    puts "Please run the following command, before running this wizard again:\n"
-    blue_colour
-    puts "curl -s https://raw.github.com/sebastian/signpost-chef/master/deploy-server.sh > /tmp/sp-install.sh && bash /tmp/sp-install.sh; rm /tmp/sp-install.sh"
-    reset_colour
-    puts
+    exec("curl -s https://raw.github.com/sebastian/signpost-chef/master/deploy-server.sh > /tmp/sp-install.sh && bash /tmp/sp-install.sh; rm /tmp/sp-install.sh")
     exit 0
   end
   puts ""
@@ -126,8 +119,6 @@ end
 def get_info
   domain_default = "d2.signpo.st"
   paras = {}
-  # TODO: Remove default
-  return {:domain => "d2.signpo.st", :password => "foobar"}
 
   blue_colour
   puts ""
@@ -143,7 +134,6 @@ def get_info
 end
 
 def connect_with_iodine paras
-  puts ""
   puts "--> attemting autodiscovery of settings"
   puts ""
   error_colour
@@ -211,7 +201,7 @@ def get_config
     while retry_count > 0 do
       data, addr = socket.recvfrom_nonblock(100000)  #=> ["aaa", ["AF_INET", 33302, "localhost.localdomain", "127.0.0.1"]]
       puts ""
-      return {"config" => JSON.parse(data)["response"]["result"]}
+      return JSON.parse(data)["response"]["result"]
     end
   rescue Exception => e
     if retry_count > 0 then
@@ -249,31 +239,135 @@ def check_deps
   check_for "git"
 end
 
-def install_chef
-  puts "--> installing chef"
-  `sudo gem install --no-ri --no-rdoc --version 0.10.8 chef`
+def get_and_build github_user, project, prebuild_callback, install = true
+  working_dir = File.expand_path("~/signpost/sources")
+
+  puts "--> get #{project} source"
+  dst = "#{working_dir}/#{project}"
+  `(git clone https://github.com/#{github_user}/#{project}.git #{dst}) > /dev/null 2> /dev/null`
+
+  # Run callback
+  prebuild_callback.call
+
+  # Build and install
+  if install then
+    puts "--> building and installing #{project}"
+  else
+    puts "--> building #{project}"
+  end
+
+  build = if install then
+    <<-eoc
+    make build &&
+    sudo make reinstall
+    eoc
+  else
+    <<-eoc
+    make build
+    eoc
+  end
+
+  cmd = <<-eoc
+    (cd #{working_dir}/#{project} &&
+    #{build}) > /dev/null 2> /dev/null
+  eoc
+  `#{cmd}`
 end
 
-def ready_chef config
-  install_chef
-  puts "--> get chef recipes"
-  working_dir = File.expand_path("~/signpost_tmp")
+def get_dependencies
+  working_dir = File.expand_path("~/signpost/sources")
   if File.exists? working_dir then
     FileUtils.rm_rf working_dir
   end
-  FileUtils.mkdir_p working_dir
-  `git clone git://github.com/sebastian/signpost-chef.git ~/signpost_tmp/chef`
-  puts "--> persisting configuration"
-  File.open(File.expand_path("~/signpost_tmp/chef/config.yaml"), "w") do |f|
-    f.puts config.to_yaml
+  FileUtils.mkdir_p "#{working_dir}"
+
+  deps = [{
+    :user => "avsm",
+    :projects => [
+      "ocaml-re", 
+      "ocaml-uri", 
+      "ocaml-cohttp",
+      "ocaml-cohttpserver",
+      "ocaml-dns"
+    ]
+  },{
+    :user => "crotsos",
+    :projects => [
+      "ocaml-openflow"
+    ]
+  }]
+ 
+  null_callback = Proc.new {}
+  
+  deps.each do |dep|
+    dep[:projects].each do |project|
+      get_and_build dep[:user], project, null_callback
+    end
   end
+end
+
+def make_signpost config, paras
+  callback = Proc.new {
+    config_ml = <<-eof
+(*
+ * Copyright (c) 2012 Anil Madhavapeddy <anil@recoil.org>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *)
+
+let user = "#{config["user"]}"
+let signpost_number = #{config["signpost_number"]}
+let domain = "#{config["domain"]}"
+let ip_slash_24 = "172.16.11."
+let external_ip = "#{config["external_ip"]}"
+let external_dns = "#{config["external_dns"]}"
+let dir = "/home/cr409/scratch/code/signpostd/"
+let iodine_node_ip = "172.16.11.1"
+let ns_server="8.8.8.8"
+let signal_port = 3456
+(* RPCs timeout after 5 minutes *)
+let rpc_timeout = 5 * 60
+    eof
+    signpost_src = File.expand_path("~/signpost/sources/signpostd")
+    File.open("#{signpost_src}/lib/config.ml", "w") do |f|
+      f.puts config_ml
+    end
+    File.open("#{signpost_src}/scripts/PASSWD", "w") do |f|
+      f.puts paras[:password]
+    end
+  }
+
+  get_and_build "avsm", "signpostd", callback, false
+end
+
+def install_json_gem
+  puts "--> installing json rubygem"
+  `sudo gem install json`
+  require 'json'
 end
 
 puts `clear`
 check_deps
 welcome
 paras = get_info
+install_json_gem
 config = connect_with_iodine paras
-ready_chef config
+get_dependencies
+make_signpost config, paras
 
-# start_real_work;
+puts ""
+puts "Congratulations. You can now run your signpost with the following command:"
+blue_colour
+signpost_src = File.expand_path("~/signpost/sources/signpostd")
+puts "cd #{signpost_src} && sudo ./scripts/run-client"
+reset_colour

@@ -5,7 +5,7 @@
     "log_dir": "/usr/local/signpost/log",
     "installation_dir": "/usr/local/signpost/source",
 
-    "server": true
+    "config_path": "/tmp/config.yaml"
   },
 
   "signpost-deps": {

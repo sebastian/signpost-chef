@@ -1,5 +1,5 @@
 Bluepill.application("signpost") do |app|
-  app.process("server.native") do |process|
+  app.process("signpost_server") do |process|
     process.start_command = "<%= node["signpost"]["installation_dir"] %>/server.native"
     process.daemonize     = true
     process.stdout        = process.stderr = "<%= node['signpost']['log_dir'] %>/server.log"

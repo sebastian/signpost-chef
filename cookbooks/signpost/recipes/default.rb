@@ -26,7 +26,7 @@ end
 
 # We want to replace the configuration file with one
 # that has configuration values as specified by the user
-conf_path = File.expand_path node["config_path"]
+conf_path = File.expand_path node["signpost"]["config_path"]
 conf = YAML::load(File.open(conf_path))["config"]
 
 template "#{signpost_dir}/lib/config.ml" do
