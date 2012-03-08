@@ -9,7 +9,6 @@ template "#{node["bluepill"]["conf_dir"]}/signpost_server.pill" do
     :pid_dir => node["signpost"]["pid_dir"],
     :log_dir => node["signpost"]["log_dir"],
     :password => conf["iodine_password"],
-    :ip_slash_24 => conf["ip_slash_24"],
     :signpost_number => conf["signpost_number"],
     :domain => conf["domain"]
   )
