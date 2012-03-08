@@ -1,9 +1,9 @@
 Bluepill.application("signpost") do |app|
   app.process("signpost_server") do |process|
-    process.start_command = "<%= node["signpost"]["installation_dir"] %>/server.native"
+    process.start_command = "<%= @install_dir %>/server.native"
     process.daemonize     = true
-    process.stdout        = process.stderr = "<%= node['signpost']['log_dir'] %>/server.log"
-    process.pid_file      = "<%= node['signpost']['pid_dir'] %>/server.pid"
+    process.stdout        = process.stderr = "<%= @log_dir %>/server.log"
+    process.pid_file      = "<%= @pid_dir %>/server.pid"
 
     process.start_grace_time   = 2.seconds
     process.stop_grace_time    = 2.seconds
@@ -15,9 +15,9 @@ Bluepill.application("signpost") do |app|
   end
 
   app.process("iodined") do |process|
-    process.start_command = "iodined -F <%= node["signpost"]["pid_dir"]%>/iodined.pid -P <%= node["iodine_password"]%> -c -b 5354 <%= node["signpost"]["ip_slash_24"] %>1/24 i.d<%= node["signpost"]["signpost_number"]%>.<%= node["signpost"]["domain"]%>"
-    process.stdout        = process.stderr = "<%= node['signpost']['log_dir'] %>/iodined.log"
-    process.pid_file      = "<%= node["signpost"]["pid_dir"]%>/iodined.pid"
+    process.start_command = "iodined -F <%= @pid_dir %>/iodined.pid -P <%= @password %> -c -b 5354 <%= @ip_slash_24 %>1/24 i.d<%= @signpost_number %>.<%= @domain %>"
+    process.stdout        = process.stderr = "<%= @log_dir %>/iodined.log"
+    process.pid_file      = "<%= @pid_dir %>/iodined.pid"
 
     process.start_grace_time   = 10.seconds
     process.stop_grace_time    = 10.seconds
