@@ -136,11 +136,10 @@ end
 def connect_with_iodine paras
   puts "--> attemting autodiscovery of settings"
   puts ""
-  error_colour
-  puts "Warning:"
-  reset_colour
-  puts "You will also be asked for your sudo password, unless you have passwordless sudo enabled."
   if (`ps -e | grep iodine | wc -l `).to_i > 1 then
+    error_colour
+    puts "Warning:"
+    reset_colour
     puts "If you choose to continue, your currently running instances of iodine will be terminated."
     ask_continue  
     puts "--> terminating existing iodine daemons"
@@ -361,8 +360,8 @@ check_deps
 
 paras = {}
 if ARGV.size == 2 then
-  paras[:password] = ARGV[0]
-  paras[:domain] = ARGV[1]
+  paras[:password] = ARGV.shift
+  paras[:domain] = ARGV.shift
   blue_colour
   puts "Will shortly resume the installation of the client software"
   sleep(2)
@@ -372,6 +371,11 @@ else
   welcome
   paras = get_info
 end
+
+error_colour
+puts "Warning:"
+reset_colour
+puts "You will also be asked for your sudo password, unless you have passwordless sudo enabled."
 
 install_json_gem
 config = connect_with_iodine paras
