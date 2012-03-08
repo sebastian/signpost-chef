@@ -47,18 +47,13 @@ execute "Compile and install Signpost" do
   action :run
 end
 
-
 # --- Setup a signpost service ---
 node["iodine_password"] = conf["iodine_password"]
 
 template "#{node["bluepill"]["conf_dir"]}/signpost_server.pill" do
   source "signpost_server.pill.erb"
 end
-#
-# service "signpost_server" do
-#   provider bluepill_service
-#   action [:enable, :load, :start]
-# end
-# bluepill_service "signpost_server" do
-#   action [:enable, :load, :start]
-# end
+
+bluepill_service "signpost_server" do
+  action [:enable, :load, :start]
+end

@@ -14,7 +14,7 @@ if ! test -f "$chef_binary"; then
   echo "--> Installing ruby" &&
   sudo apt-get install -q -y ruby1.9.1 ruby1.9.1-dev make > /dev/null &&
   echo "--> Installing chef" &&
-  sudo gem1.9.1 install --no-rdoc --no-ri chef --version 0.10.0 > /dev/null
+  sudo gem1.9.1 install --no-rdoc --no-ri chef --version 0.10.8 > /dev/null
 fi &&
 
 # Copy our config to a place where we can get at it
