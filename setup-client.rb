@@ -148,7 +148,7 @@ def connect_with_iodine paras
   end
   puts "--> attempting auto discovery of settings"
   puts "--> attempting to establish contact with #{paras[:domain]}"
-  `sudo iodine -P #{paras[:password]} 192.168.56.101 i.#{paras[:domain]} > iodine_info 2> iodine_info`
+  `sudo iodine -P #{paras[:password]} i.#{paras[:domain]} > iodine_info 2> iodine_info`
   iodine_setup_output = `grep "Bad password" iodine_info`
   `rm iodine_info`
   if iodine_setup_output =~ /Bad password/ then
@@ -358,8 +358,21 @@ end
 
 puts `clear`
 check_deps
-welcome
-paras = get_info
+
+paras = {}
+if ARGV.size == 2 then
+  paras[:password] = ARGV[0]
+  paras[:domain] = ARGV[1]
+  blue_colour
+  puts "Will shortly resume the installation of the client software"
+  sleep(2)
+  reset_colour
+  puts "--> resuming client installation"
+else
+  welcome
+  paras = get_info
+end
+
 install_json_gem
 config = connect_with_iodine paras
 get_dependencies

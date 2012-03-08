@@ -32,6 +32,7 @@ function main {
   ask_continue;
   get_info;
   start_real_work;
+  complete;
 }
 
 function error_colour {
@@ -240,12 +241,14 @@ function start_real_work {
   action
   echo "Setup starting now! This will take a while, please be patient."
   log_onto_host &&
+}
+
+function complete {
   hurray &&
-  echo "We are done!" &&
-  echo "You should now try adding some clients." &&
-  echo "You do that by: foo bar gazizzle. (GOOD LUCK)."
-  echo
-  echo
+  echo "We are done with the server installation!" &&
+  echo "Should we continue with the client installation?"
+  ask_continue;
+  curl -s https://raw.github.com/sebastian/signpost-chef/master/setup-client.rb > /tmp/sp-install-client.rb && ruby /tmp/sp-install-client.rb "$iodine_password" "$domain"; rm /tmp/sp-install-client.rb
 }
 
 function log_onto_host {
