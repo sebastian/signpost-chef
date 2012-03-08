@@ -240,7 +240,7 @@ function start_real_work {
   echo
   action
   echo "Setup starting now! This will take a while, please be patient."
-  log_onto_host &&
+  log_onto_host
 }
 
 function complete {
