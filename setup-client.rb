@@ -234,16 +234,23 @@ def check_for src
   end
 end
 
+def working_dir
+  File.expand_path("~/signpost/sources")
+end
+
 def check_deps
   check_for "git"
 end
 
-def get_and_build github_user, project, prebuild_callback, install = true
-  working_dir = File.expand_path("~/signpost/sources")
+def clone_git_repo repo, dst
+  `(git clone #{repo} #{dst}) > /dev/null 2> /dev/null`
+end
 
+def get_and_build github_user, project, prebuild_callback, install = true
   puts "--> get #{project} source"
   dst = "#{working_dir}/#{project}"
-  `(git clone https://github.com/#{github_user}/#{project}.git #{dst}) > /dev/null 2> /dev/null`
+  repo = "https://github.com/#{github_user}/#{project}.git"
+  clone_git_repo repo, dst
 
   # Run callback
   prebuild_callback.call
@@ -274,7 +281,6 @@ def get_and_build github_user, project, prebuild_callback, install = true
 end
 
 def get_dependencies
-  working_dir = File.expand_path("~/signpost/sources")
   if File.exists? working_dir then
     FileUtils.rm_rf working_dir
   end
@@ -303,6 +309,27 @@ def get_dependencies
       get_and_build dep[:user], project, null_callback
     end
   end
+end
+
+def install_open_v_switch
+  puts "--> get OpenVSwitch source"
+  dst = "#{working_dir}/openvswitch"
+  repository = "http://openvswitch.org/git/openvswitch"
+  clone_git_repo repository, dst
+
+  puts "--> building and installing OpenVSwitch"
+  command = <<-EOC
+cd #{dst} &&
+./boot.sh &&
+./configure --with-linux=/lib/modules/`uname -r`/build &&
+make &&
+make install &&
+cd datapath/linux/ &&
+make modules_install &&
+depmod -ae &&
+read_args (Array.to_list Sys.argv)
+  EOC
+  `#{command}`
 end
 
 def make_signpost config, paras
@@ -380,6 +407,7 @@ puts "You will also be asked for your sudo password, unless you have passwordles
 install_json_gem
 config = connect_with_iodine paras
 get_dependencies
+install_open_v_switch
 make_signpost config, paras
 
 puts ""
